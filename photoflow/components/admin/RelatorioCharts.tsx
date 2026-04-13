@@ -161,7 +161,7 @@ export function RelatorioCharts() {
                   paddingAngle={3}
                   dataKey="count"
                   nameKey="status"
-                  label={({ status }) => status}
+                  label={({ name }: { name?: string }) => name ?? ""}
                 >
                   {data.leadsPorStatus.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

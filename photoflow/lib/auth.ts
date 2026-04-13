@@ -47,9 +47,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as Record<string, unknown>).id = token.sub;
-        (session.user as Record<string, unknown>).role = token.role;
-        (session.user as Record<string, unknown>).paginas = token.paginas;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const user = session.user as any;
+        user.id = token.sub;
+        user.role = token.role;
+        user.paginas = token.paginas;
       }
       return session;
     },
