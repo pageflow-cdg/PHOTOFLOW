@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ========================
+// AUTENTICAÇÃO & PERMISSÕES
+// ========================
+
+model User {
+  id        String   @id @default(cuid())
+  user      String   @unique
+  senha     String
+  roleId    String
+  role      UserRole @relation(fields: [roleId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserRole {
+  id      String @id @default(cuid())
+  role    String @unique
+  paginas String
+  users   User[]
+}
+
+// ========================
+// LEADS
+// ========================
+
+model Lead {
+  id        String               @id @default(cuid())
+  nome      String
+  telefone  String
+  email     String?
+  statusId  String
+  status    LeadStatus           @relation(fields: [statusId], references: [id])
+  fotos     Foto[]
+  respostas LeadResposta[]
+  historico LeadStatusHistorico[]
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+}
+
+model LeadStatus {
+  id        String                @id @default(cuid())
+  status    String                @unique
+  leads     Lead[]
+  historico LeadStatusHistorico[]
+}
+
+model LeadStatusHistorico {
+  id        String     @id @default(cuid())
+  statusId  String
+  status    LeadStatus @relation(fields: [statusId], references: [id])
+  leadId    String
+  lead      Lead       @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+}
+
+// ========================
+// FOTOS
+// ========================
+
+model Foto {
+  id        String               @id @default(cuid())
+  fotoUrl   String
+  statusId  String
+  status    FotoStatus           @relation(fields: [statusId], references: [id])
+  leadId    String
+  lead      Lead                 @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  historico FotoStatusHistorico[]
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+}
+
+model FotoStatus {
+  id        String                @id @default(cuid())
+  status    String                @unique
+  fotos     Foto[]
+  historico FotoStatusHistorico[]
+}
+
+model FotoStatusHistorico {
+  id        String     @id @default(cuid())
+  statusId  String
+  status    FotoStatus @relation(fields: [statusId], references: [id])
+  fotoId    String
+  foto      Foto       @relation(fields: [fotoId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+}
+
+// ========================
+// PERGUNTAS & RESPOSTAS
+// ========================
+
+model PerguntaTipo {
+  id        String     @id @default(cuid())
+  descricao String     @unique
+  perguntas Pergunta[]
+}
+
+model PerguntaPonto {
+  id        String     @id @default(cuid())
+  ponto     Int
+  perguntas Pergunta[]
+}
+
+model Pergunta {
+  id        String         @id @default(cuid())
+  descricao String
+  tipoId    String
+  tipo      PerguntaTipo   @relation(fields: [tipoId], references: [id])
+  pontoId   String
+  ponto     PerguntaPonto  @relation(fields: [pontoId], references: [id])
+  respostas Resposta[]
+  leadResps LeadResposta[]
+  ativa     Boolean        @default(true)
+  ordem     Int            @default(0)
+  createdAt DateTime       @default(now())
+}
+
+model Resposta {
+  id         String         @id @default(cuid())
+  resposta   String
+  perguntaId String
+  pergunta   Pergunta       @relation(fields: [perguntaId], references: [id], onDelete: Cascade)
+  leadResps  LeadResposta[]
+}
+
+model LeadResposta {
+  id         String   @id @default(cuid())
+  perguntaId String
+  pergunta   Pergunta @relation(fields: [perguntaId], references: [id])
+  leadId     String
+  lead       Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  respostaId String
+  resposta   Resposta @relation(fields: [respostaId], references: [id])
+  createdAt  DateTime @default(now())
+}
