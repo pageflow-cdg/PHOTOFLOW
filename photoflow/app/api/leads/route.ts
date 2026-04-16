@@ -11,7 +11,8 @@ const createLeadSchema = z.object({
     .array(
       z.object({
         perguntaId: z.string(),
-        respostaId: z.string(),
+        respostaId: z.string().optional(),
+        respostaTexto: z.string().optional(),
       })
     )
     .optional(),
@@ -118,13 +119,19 @@ export async function POST(request: NextRequest) {
 
     // Save answers
     if (parsed.respostas && parsed.respostas.length > 0) {
-      await prisma.leadResposta.createMany({
-        data: parsed.respostas.map((r) => ({
-          perguntaId: r.perguntaId,
-          respostaId: r.respostaId,
-          leadId: lead.id,
-        })),
-      });
+      const respostasValidas = parsed.respostas.filter(
+        (r) => r.respostaId || (r.respostaTexto && r.respostaTexto.trim())
+      );
+      if (respostasValidas.length > 0) {
+        await prisma.leadResposta.createMany({
+          data: respostasValidas.map((r) => ({
+            perguntaId: r.perguntaId,
+            respostaId: r.respostaId ?? null,
+            respostaTexto: r.respostaTexto ?? null,
+            leadId: lead.id,
+          })),
+        });
+      }
     }
 
     return NextResponse.json(lead, { status: 201 });

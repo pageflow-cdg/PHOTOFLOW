@@ -32,7 +32,8 @@ export interface FotoWithStatus {
 export interface LeadRespostaWithRelations {
   id: string;
   pergunta: { id: string; descricao: string };
-  resposta: { id: string; resposta: string };
+  resposta: { id: string; resposta: string } | null;
+  respostaTexto: string | null;
   createdAt: Date;
 }
 

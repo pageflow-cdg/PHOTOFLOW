@@ -54,26 +54,16 @@ export function PerguntasCRUD() {
     Promise.all([
       fetch("/api/perguntas").then((r) => r.json()),
       fetch("/api/usuarios").then((r) => r.json()),
+      fetch("/api/perguntas/tipos").then((r) => r.json()),
+      fetch("/api/perguntas/pontos").then((r) => r.json()),
+      fetch("/api/usuarios/roles").then((r) => r.json()),
     ])
-      .then(([perguntasData, usersData]) => {
+      .then(([perguntasData, usersData, tiposData, pontosData, rolesData]) => {
         setPerguntas(perguntasData);
         setUsers(usersData);
-        // Extract types and points from perguntas if available
-        const tiposSet = new Map<string, string>();
-        const pontosSet = new Map<string, number>();
-        perguntasData.forEach((p: PerguntaWithRelations) => {
-          tiposSet.set(p.tipo.id, p.tipo.descricao);
-          pontosSet.set(p.ponto.id, p.ponto.ponto);
-        });
-        setTipos(Array.from(tiposSet, ([id, descricao]) => ({ id, descricao })));
-        setPontos(Array.from(pontosSet, ([id, ponto]) => ({ id, ponto })));
-
-        // Extract roles from users
-        const rolesSet = new Map<string, string>();
-        usersData.forEach((u: UserData) => {
-          rolesSet.set(u.role.id, u.role.role);
-        });
-        setRoles(Array.from(rolesSet, ([id, role]) => ({ id, role })));
+        setTipos(tiposData);
+        setPontos(pontosData);
+        setRoles(rolesData);
       })
       .catch(() => toast.error("Erro ao carregar dados"))
       .finally(() => setLoading(false));

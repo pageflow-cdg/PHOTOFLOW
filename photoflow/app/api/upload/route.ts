@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     }
 
     const filename = `fotos/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-    const blob = await put(filename, file, { access: "public" });
+    const blob = await put(filename, file, { access: "private" });
 
     const fotoStatus = await prisma.fotoStatus.findUnique({
       where: { status: "pronta" },

@@ -105,7 +105,7 @@ export function LeadDetailDrawer({
                 {lead.respostas.map((r, i) => (
                   <div key={i} className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900">
                     <p className="text-sm text-zinc-500">{r.pergunta.descricao}</p>
-                    <p className="font-medium mt-1">{r.resposta.resposta}</p>
+                    <p className="font-medium mt-1">{r.resposta?.resposta ?? r.respostaTexto ?? "—"}</p>
                   </div>
                 ))}
               </div>

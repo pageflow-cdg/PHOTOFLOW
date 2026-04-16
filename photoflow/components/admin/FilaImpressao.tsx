@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Printer, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
-import Image from "next/image";
 
 interface Foto {
   id: string;
@@ -96,7 +95,7 @@ export function FilaImpressao() {
               .map(
                 (f) => `
               <div class="photo-item">
-                <img src="${f.fotoUrl}" alt="Foto" />
+                <img src="/api/fotos/${f.id}/image" alt="Foto" />
                 <div class="photo-info">${f.lead.nome}</div>
               </div>
             `
@@ -177,11 +176,11 @@ export function FilaImpressao() {
               }`}
               onClick={() => toggleSelect(foto.id)}
             >
-              <Image
-                src={foto.fotoUrl}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`/api/fotos/${foto.id}/image`}
                 alt={`Foto de ${foto.lead.nome}`}
-                fill
-                className="object-cover"
+                className="object-cover w-full h-full"
               />
               <div className="absolute top-2 left-2">
                 <Checkbox

@@ -133,12 +133,13 @@ model Resposta {
 }
 
 model LeadResposta {
-  id         String   @id @default(cuid())
-  perguntaId String
-  pergunta   Pergunta @relation(fields: [perguntaId], references: [id])
-  leadId     String
-  lead       Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  respostaId String
-  resposta   Resposta @relation(fields: [respostaId], references: [id])
-  createdAt  DateTime @default(now())
+  id            String    @id @default(cuid())
+  perguntaId    String
+  pergunta      Pergunta  @relation(fields: [perguntaId], references: [id])
+  leadId        String
+  lead          Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  respostaId    String?
+  resposta      Resposta? @relation(fields: [respostaId], references: [id])
+  respostaTexto String?
+  createdAt     DateTime  @default(now())
 }
