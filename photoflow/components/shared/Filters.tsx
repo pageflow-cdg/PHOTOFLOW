@@ -2,7 +2,6 @@
 
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 import { Search, X } from "lucide-react";
 
 interface FiltersProps {
@@ -32,26 +31,26 @@ export function Filters({
 }: FiltersProps) {
   return (
     <div className="flex flex-wrap items-end gap-3">
-      <div className="flex-1 min-w-[200px]">
+      <div className="flex-1 min-w-50">
         <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" />
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[#18BDD5]/60" />
           <Input
             placeholder="Buscar por nome ou telefone..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-9"
+            className="pl-9 bg-white/4 border-white/10 text-white placeholder:text-white/35 rounded-xl focus-visible:border-[#18BDD5]/60 focus-visible:ring-0"
           />
         </div>
       </div>
-      <div className="w-[180px]">
+      <div className="w-45">
         <Select value={status} onValueChange={onStatusChange}>
-          <SelectTrigger>
-            <SelectValue placeholder="Status" />
+          <SelectTrigger className="bg-white/4 border-white/10 text-white rounded-xl focus:ring-0 [&>svg]:text-white/50">
+            <SelectValue placeholder="Todos" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
+          <SelectContent className="bg-[#07192a] border-white/10 text-white">
+            <SelectItem value="all" className="focus:bg-white/8 focus:text-white">Todos</SelectItem>
             {statuses.map((s) => (
-              <SelectItem key={s.id} value={s.status}>
+              <SelectItem key={s.id} value={s.status} className="focus:bg-white/8 focus:text-white">
                 {s.status.replace("_", " ")}
               </SelectItem>
             ))}
@@ -63,7 +62,7 @@ export function Filters({
           type="date"
           value={dateFrom}
           onChange={(e) => onDateFromChange(e.target.value)}
-          className="w-[150px]"
+          className="w-37.5 bg-white/4 border-white/10 text-white rounded-xl focus-visible:border-[#18BDD5]/60 focus-visible:ring-0 scheme-dark"
         />
       </div>
       <div>
@@ -71,12 +70,16 @@ export function Filters({
           type="date"
           value={dateTo}
           onChange={(e) => onDateToChange(e.target.value)}
-          className="w-[150px]"
+          className="w-37.5 bg-white/4 border-white/10 text-white rounded-xl focus-visible:border-[#18BDD5]/60 focus-visible:ring-0 scheme-dark"
         />
       </div>
-      <Button variant="ghost" size="icon" onClick={onClear}>
+      <button
+        onClick={onClear}
+        className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/4 text-white/60 hover:bg-white/8 hover:text-white transition-colors"
+        aria-label="Limpar filtros"
+      >
         <X className="h-4 w-4" />
-      </Button>
+      </button>
     </div>
   );
 }
