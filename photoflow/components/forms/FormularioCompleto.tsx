@@ -35,7 +35,7 @@ export function FormularioCompleto() {
   });
 
   useEffect(() => {
-    fetch("/api/perguntas")
+    fetch("/api/perguntas?tipoPergunta=form_aberto")
       .then((res) => res.json())
       .then((data) => {
         setPerguntas(data.filter((p: PerguntaWithRelations) => p.ativa));

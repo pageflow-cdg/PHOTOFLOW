@@ -35,7 +35,7 @@ const menuItems = [
   { href: "/admin/closer", label: "Closer", icon: Mic },
   { href: "/admin/relatorio", label: "Relatório", icon: BarChart3 },
   { href: "/admin/cadastro", label: "Cadastro", icon: Settings },
-  { href: "/admin/form-aberto", label: "Form Aberto", icon: Camera },
+  { href: "/admin/form-fechado", label: "Form Fechado", icon: Camera },
 ];
 
 export function Sidebar({

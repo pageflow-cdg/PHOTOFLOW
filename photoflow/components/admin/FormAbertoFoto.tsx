@@ -35,7 +35,7 @@ export function FormAbertoFoto() {
   });
 
   useEffect(() => {
-    fetch("/api/perguntas")
+    fetch("/api/perguntas?tipoPergunta=form_fechado")
       .then((res) => res.json())
       .then((data) => setPerguntas(data.filter((p: PerguntaWithRelations) => p.ativa)))
       .catch(() => {});

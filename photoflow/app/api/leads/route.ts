@@ -137,6 +137,40 @@ export async function POST(request: NextRequest) {
             leadId: lead.id,
           })),
         });
+
+        // Calculate pontuacao
+        const respostasComPeso = respostasValidas.filter((r) => r.respostaId);
+        if (respostasComPeso.length > 0) {
+          const perguntaIds = respostasComPeso.map((r) => r.perguntaId);
+          const perguntas = await prisma.pergunta.findMany({
+            where: { id: { in: perguntaIds } },
+            include: { respostas: true },
+          });
+
+          let somaEscolhidos = 0;
+          let somaMaximos = 0;
+
+          for (const pergunta of perguntas) {
+            const maxPeso = Math.max(...pergunta.respostas.map((r) => r.peso));
+            const escolhida = respostasComPeso.find((r) => r.perguntaId === pergunta.id);
+            const respostaEscolhida = pergunta.respostas.find(
+              (r) => r.id === escolhida?.respostaId
+            );
+
+            if (respostaEscolhida && maxPeso > 0) {
+              somaEscolhidos += respostaEscolhida.peso;
+              somaMaximos += maxPeso;
+            }
+          }
+
+          if (somaMaximos > 0) {
+            const pontuacao = somaEscolhidos / somaMaximos;
+            await prisma.lead.update({
+              where: { id: lead.id },
+              data: { pontuacao },
+            });
+          }
+        }
       }
     }
 

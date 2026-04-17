@@ -34,18 +34,19 @@ model UserRole {
 // ========================
 
 model Lead {
-  id        String               @id @default(cuid())
-  nome      String
-  telefone  String
-  email     String?
-  statusId  String
-  status    LeadStatus           @relation(fields: [statusId], references: [id])
-  fotos     Foto[]
-  respostas LeadResposta[]
-  historico LeadStatusHistorico[]
-  closers   LeadCloser[]
-  createdAt DateTime             @default(now())
-  updatedAt DateTime             @updatedAt
+  id         String               @id @default(cuid())
+  nome       String
+  telefone   String
+  email      String?
+  pontuacao  Float                @default(0)
+  statusId   String
+  status     LeadStatus           @relation(fields: [statusId], references: [id])
+  fotos      Foto[]
+  respostas  LeadResposta[]
+  historico  LeadStatusHistorico[]
+  closers    LeadCloser[]
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
 }
 
 model LeadStatus {

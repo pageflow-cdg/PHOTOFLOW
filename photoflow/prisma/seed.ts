@@ -10,7 +10,7 @@ async function main() {
     "/admin/leads",
     "/admin/relatorio",
     "/admin/cadastro",
-    "/admin/form-aberto",
+    "/admin/form-fechado",
     "/admin/closer",
   ]);
   const adminRole = await prisma.userRole.upsert({
@@ -25,7 +25,7 @@ async function main() {
   const operadorPaginas = JSON.stringify([
     "/admin/impressao",
     "/admin/leads",
-    "/admin/form-aberto",
+    "/admin/form-fechado",
     "/admin/closer",
   ]);
   await prisma.userRole.upsert({
@@ -75,30 +75,6 @@ async function main() {
       update: {},
       create: { status },
     });
-  }
-
-  // Pergunta Tipos
-  for (const descricao of [
-    "texto",
-    "multipla_escolha",
-    "escala",
-    "sim_nao",
-  ]) {
-    await prisma.perguntaTipo.upsert({
-      where: { descricao },
-      update: {},
-      create: { descricao },
-    });
-  }
-
-  // Pergunta Pontos
-  for (const ponto of [1, 2, 3, 5, 10]) {
-    const existing = await prisma.perguntaPonto.findFirst({
-      where: { ponto },
-    });
-    if (!existing) {
-      await prisma.perguntaPonto.create({ data: { ponto } });
-    }
   }
 
   // Admin user
