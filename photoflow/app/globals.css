@@ -115,6 +115,15 @@ body {
   animation: fadeIn 0.6s ease-out both;
 }
 
+/* Public form card stagger */
+.public-form-card {
+  animation: fadeInUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.public-form-card:nth-child(1) { animation-delay: 0.05s; }
+.public-form-card:nth-child(2) { animation-delay: 0.15s; }
+.public-form-card:nth-child(3) { animation-delay: 0.25s; }
+.public-form-card:nth-child(4) { animation-delay: 0.35s; }
+
 * {
   border-color: var(--color-border);
 }

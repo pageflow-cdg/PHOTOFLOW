@@ -5,12 +5,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UploadFotos } from "./UploadFotos";
 import { PerguntaRenderer } from "./PerguntaRenderer";
-import { Loader2, Camera, CheckCircle } from "lucide-react";
+import { Loader2, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import type { PerguntaWithRelations } from "@/types";
 
@@ -21,6 +19,20 @@ const formSchema = z.object({
 });
 
 type FormData = z.infer<typeof formSchema>;
+
+const glassCard =
+  "rounded-2xl px-6 py-7 public-form-card";
+
+const glassStyle = {
+  background: "rgba(255,255,255,0.92)",
+  backdropFilter: "blur(20px)",
+  WebkitBackdropFilter: "blur(20px)",
+  boxShadow: "0 8px 40px rgba(0,0,0,0.12)",
+  border: "1px solid rgba(255,255,255,0.6)",
+} as const;
+
+const inputClass =
+  "h-11 rounded-xl bg-white border-[#E6E7E9] focus-visible:ring-1 focus-visible:ring-[#1599BD] focus-visible:border-[#1599BD] placeholder:text-[#BDBFC7] text-[#0B284F] transition-shadow duration-200";
 
 export function FormularioCompleto() {
   const [perguntas, setPerguntas] = useState<PerguntaWithRelations[]>([]);
@@ -81,68 +93,81 @@ export function FormularioCompleto() {
 
   if (success) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-        <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
-        <h2 className="text-2xl font-bold mb-2">Tudo certo!</h2>
-        <p className="text-zinc-600 dark:text-zinc-400">
-          Suas fotos serão entregues em breve!
-        </p>
+      <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
+        <div className={glassCard} style={glassStyle}>
+          <CheckCircle className="h-14 w-14 text-[#18BDD5] mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-[#0B284F] mb-2">Tudo certo!</h2>
+          <p className="text-sm text-[#0B284F]/60">
+            Suas fotos serão entregues em breve!
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-8 space-y-6">
-      <div className="text-center mb-8">
-        <Camera className="h-12 w-12 mx-auto text-zinc-900 dark:text-white mb-3" />
-        <h1 className="text-2xl font-bold">PhotoFlow</h1>
-        <p className="text-zinc-500 mt-1">Preencha seus dados para receber suas fotos</p>
+    <div className="max-w-md mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-5">
+      <div className="text-center mb-2">
+        <p className="text-sm text-white/60">Preencha seus dados para receber suas fotos</p>
       </div>
 
       {!leadId ? (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Seus dados</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="nome">Nome *</Label>
-                <Input id="nome" {...register("nome")} placeholder="Seu nome completo" />
-                {errors.nome && <p className="text-sm text-red-500">{errors.nome.message}</p>}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          {/* Dados pessoais */}
+          <div className={glassCard} style={glassStyle}>
+            <p className="text-xs font-medium uppercase tracking-wide text-[#0B284F]/50 mb-5">
+              Seus dados
+            </p>
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium uppercase tracking-wide text-[#0B284F]">
+                  Nome *
+                </label>
+                <Input id="nome" {...register("nome")} placeholder="Seu nome completo" className={inputClass} />
+                {errors.nome && <p className="text-xs text-red-500 mt-1">{errors.nome.message}</p>}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="telefone">Telefone *</Label>
-                <Input id="telefone" {...register("telefone")} placeholder="(11) 99999-9999" />
-                {errors.telefone && <p className="text-sm text-red-500">{errors.telefone.message}</p>}
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium uppercase tracking-wide text-[#0B284F]">
+                  Telefone *
+                </label>
+                <Input id="telefone" {...register("telefone")} placeholder="(11) 99999-9999" className={inputClass} />
+                {errors.telefone && <p className="text-xs text-red-500 mt-1">{errors.telefone.message}</p>}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email (opcional)</Label>
-                <Input id="email" type="email" {...register("email")} placeholder="seu@email.com" />
-                {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium uppercase tracking-wide text-[#0B284F]">
+                  Email (opcional)
+                </label>
+                <Input id="email" type="email" {...register("email")} placeholder="seu@email.com" className={inputClass} />
+                {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
+          {/* Perguntas */}
           {!loading && perguntas.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Perguntas</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
+            <div className={glassCard} style={glassStyle}>
+              <p className="text-xs font-medium uppercase tracking-wide text-[#0B284F]/50 mb-5">
+                Perguntas
+              </p>
+              <div className="space-y-5">
                 {perguntas.map((p) => (
                   <PerguntaRenderer
                     key={p.id}
                     pergunta={p}
                     value={respostas[p.id] || ""}
                     onChange={(val) => setRespostas((prev) => ({ ...prev, [p.id]: val }))}
+                    variant="public"
                   />
                 ))}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
-          <Button type="submit" disabled={submitting} className="w-full h-12 text-base">
+          <Button
+            type="submit"
+            disabled={submitting}
+            className="w-full h-12 rounded-xl font-medium bg-[#1599BD] hover:bg-[#014F85] text-white border-0 shadow-[0_4px_20px_rgba(21,153,189,0.3)] transition-colors duration-200 text-base"
+          >
             {submitting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -154,17 +179,15 @@ export function FormularioCompleto() {
           </Button>
         </form>
       ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>Envie suas fotos</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <UploadFotos
-              leadId={leadId}
-              onUploadComplete={() => setSuccess(true)}
-            />
-          </CardContent>
-        </Card>
+        <div className={glassCard} style={glassStyle}>
+          <p className="text-xs font-medium uppercase tracking-wide text-[#0B284F]/50 mb-5">
+            Envie suas fotos
+          </p>
+          <UploadFotos
+            leadId={leadId}
+            onUploadComplete={() => setSuccess(true)}
+          />
+        </div>
       )}
     </div>
   );
