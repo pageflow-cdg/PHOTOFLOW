@@ -60,7 +60,7 @@ export async function POST(
       const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
       let fetchUrl = leadCloser.audioUrl;
       if (blobToken && !leadCloser.audioUrl.includes(".public.blob.")) {
-        fetchUrl = await getDownloadUrl(leadCloser.audioUrl, { token: blobToken });
+        fetchUrl = await getDownloadUrl(leadCloser.audioUrl);
       }
       const audioResponse = await fetch(fetchUrl);
       if (!audioResponse.ok) {

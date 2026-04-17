@@ -1,12 +1,7 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 
 export async function GET() {
-  try {
-    const pontos = await prisma.perguntaPonto.findMany({ orderBy: { ponto: "asc" } });
-    return NextResponse.json(pontos);
-  } catch (error) {
-    console.error("GET pergunta pontos error:", error);
-    return NextResponse.json({ error: "Erro ao buscar pontos" }, { status: 500 });
-  }
+  // Valores de ponto disponíveis para respostas (peso fixo, sem tabela no banco)
+  const pontos = [1, 2, 3, 5, 10].map((ponto, i) => ({ id: String(i + 1), ponto }));
+  return NextResponse.json(pontos);
 }

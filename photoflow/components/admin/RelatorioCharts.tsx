@@ -175,7 +175,7 @@ export function RelatorioCharts() {
                 content={(props) => (
                   <BarTooltip
                     active={props.active}
-                    payload={props.payload as { value: number }[] | undefined}
+                    payload={props.payload as unknown as { value: number }[] | undefined}
                     label={props.label as string | undefined}
                   />
                 )}
@@ -209,7 +209,7 @@ export function RelatorioCharts() {
                 content={(props) => (
                   <PieTooltip
                     active={props.active}
-                    payload={props.payload as { name: string; value: number }[] | undefined}
+                    payload={props.payload as unknown as { name: string; value: number }[] | undefined}
                   />
                 )}
               />

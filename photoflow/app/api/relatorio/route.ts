@@ -71,12 +71,12 @@ export async function GET(request: NextRequest) {
         ? { lead: { createdAt: dateFilter } }
         : {},
       include: {
-        pergunta: { include: { ponto: true } },
+        resposta: true,
       },
     });
 
     const totalPontos = respostas.reduce(
-      (sum, r) => sum + r.pergunta.ponto.ponto,
+      (sum, r) => sum + (r.resposta?.peso ?? 0),
       0
     );
     const mediaPontuacao = respostas.length > 0

@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 
 export async function GET() {
-  try {
-    const tipos = await prisma.perguntaTipo.findMany({ orderBy: { descricao: "asc" } });
-    return NextResponse.json(tipos);
-  } catch (error) {
-    console.error("GET pergunta tipos error:", error);
-    return NextResponse.json({ error: "Erro ao buscar tipos" }, { status: 500 });
-  }
+  // Tipos de pergunta definidos no enum TipoPergunta do schema
+  const tipos = [
+    { id: "form_aberto", descricao: "Form Aberto" },
+    { id: "form_fechado", descricao: "Form Fechado" },
+    { id: "ambos", descricao: "Ambos" },
+  ];
+  return NextResponse.json(tipos);
 }
