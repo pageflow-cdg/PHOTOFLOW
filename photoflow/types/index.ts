@@ -42,7 +42,8 @@ export interface PerguntaWithRelations {
   descricao: string;
   tipo: { id: string; descricao: string };
   ponto: { id: string; ponto: number };
-  respostas: { id: string; resposta: string }[];
+  tipoPergunta: "form_aberto" | "form_fechado" | "ambos";
+  respostas: { id: string; resposta: string; peso: number }[];
   ativa: boolean;
   ordem: number;
 }

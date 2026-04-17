@@ -98,6 +98,12 @@ model FotoStatusHistorico {
 // PERGUNTAS & RESPOSTAS
 // ========================
 
+enum TipoPergunta {
+  form_aberto
+  form_fechado
+  ambos
+}
+
 model PerguntaTipo {
   id        String     @id @default(cuid())
   descricao String     @unique
@@ -111,22 +117,24 @@ model PerguntaPonto {
 }
 
 model Pergunta {
-  id        String         @id @default(cuid())
-  descricao String
-  tipoId    String
-  tipo      PerguntaTipo   @relation(fields: [tipoId], references: [id])
-  pontoId   String
-  ponto     PerguntaPonto  @relation(fields: [pontoId], references: [id])
-  respostas Resposta[]
-  leadResps LeadResposta[]
-  ativa     Boolean        @default(true)
-  ordem     Int            @default(0)
-  createdAt DateTime       @default(now())
+  id            String        @id @default(cuid())
+  descricao     String
+  tipoId        String
+  tipo          PerguntaTipo  @relation(fields: [tipoId], references: [id])
+  pontoId       String
+  ponto         PerguntaPonto @relation(fields: [pontoId], references: [id])
+  tipoPergunta  TipoPergunta  @default(ambos)
+  respostas     Resposta[]
+  leadResps     LeadResposta[]
+  ativa         Boolean       @default(true)
+  ordem         Int           @default(0)
+  createdAt     DateTime      @default(now())
 }
 
 model Resposta {
   id         String         @id @default(cuid())
   resposta   String
+  peso       Int            @default(0)
   perguntaId String
   pergunta   Pergunta       @relation(fields: [perguntaId], references: [id], onDelete: Cascade)
   leadResps  LeadResposta[]

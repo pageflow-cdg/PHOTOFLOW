@@ -41,7 +41,8 @@ export function PerguntasCRUD() {
   const [newDesc, setNewDesc] = useState("");
   const [newTipoId, setNewTipoId] = useState("");
   const [newPontoId, setNewPontoId] = useState("");
-  const [newRespostas, setNewRespostas] = useState("");
+  const [newTipoPergunta, setNewTipoPergunta] = useState("ambos");
+  const [newRespostasList, setNewRespostasList] = useState<{ resposta: string; peso: number }[]>([]);
   const [creating, setCreating] = useState(false);
 
   // New user form
@@ -84,9 +85,8 @@ export function PerguntasCRUD() {
           descricao: newDesc,
           tipoId: newTipoId,
           pontoId: newPontoId,
-          respostas: newRespostas
-            ? newRespostas.split(",").map((r) => r.trim())
-            : undefined,
+          tipoPergunta: newTipoPergunta,
+          respostas: newRespostasList.length > 0 ? newRespostasList : undefined,
         }),
       });
 
@@ -94,7 +94,7 @@ export function PerguntasCRUD() {
       const data = await res.json();
       setPerguntas((prev) => [...prev, data]);
       setNewDesc("");
-      setNewRespostas("");
+      setNewRespostasList([]);
       toast.success("Pergunta criada!");
     } catch {
       toast.error("Erro ao criar pergunta");
@@ -218,14 +218,68 @@ export function PerguntasCRUD() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Respostas (separadas por vírgula)</Label>
-                <Input
-                  value={newRespostas}
-                  onChange={(e) => setNewRespostas(e.target.value)}
-                  placeholder="Sim, Não"
-                />
+                <Label>Exibir em</Label>
+                <Select value={newTipoPergunta} onValueChange={setNewTipoPergunta}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ambos">Ambos</SelectItem>
+                    <SelectItem value="form_aberto">Form Aberto</SelectItem>
+                    <SelectItem value="form_fechado">Form Fechado</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
+
+            {/* Respostas dinâmicas com peso */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Respostas</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setNewRespostasList((prev) => [...prev, { resposta: "", peso: 0 }])}
+                >
+                  <Plus className="h-3 w-3 mr-1" /> Adicionar
+                </Button>
+              </div>
+              {newRespostasList.map((item, idx) => (
+                <div key={idx} className="flex gap-2 items-center">
+                  <Input
+                    className="flex-1"
+                    placeholder="Texto da resposta"
+                    value={item.resposta}
+                    onChange={(e) =>
+                      setNewRespostasList((prev) =>
+                        prev.map((r, i) => (i === idx ? { ...r, resposta: e.target.value } : r))
+                      )
+                    }
+                  />
+                  <Input
+                    className="w-20"
+                    type="number"
+                    placeholder="Peso"
+                    value={item.peso}
+                    onChange={(e) =>
+                      setNewRespostasList((prev) =>
+                        prev.map((r, i) => (i === idx ? { ...r, peso: Number(e.target.value) } : r))
+                      )
+                    }
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setNewRespostasList((prev) => prev.filter((_, i) => i !== idx))}
+                  >
+                    <Trash2 className="h-4 w-4 text-red-400" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+
             <Button onClick={createPergunta} disabled={creating}>
               {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
               Criar Pergunta
@@ -242,6 +296,7 @@ export function PerguntasCRUD() {
                   <TableHead></TableHead>
                   <TableHead>Pergunta</TableHead>
                   <TableHead>Tipo</TableHead>
+                  <TableHead>Exibir em</TableHead>
                   <TableHead>Pontos</TableHead>
                   <TableHead>Respostas</TableHead>
                   <TableHead>Ativa</TableHead>
@@ -257,12 +312,15 @@ export function PerguntasCRUD() {
                     <TableCell>
                       <Badge variant="secondary">{p.tipo.descricao}</Badge>
                     </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{p.tipoPergunta ?? "ambos"}</Badge>
+                    </TableCell>
                     <TableCell>{p.ponto.ponto}</TableCell>
                     <TableCell>
                       <div className="flex gap-1 flex-wrap">
                         {p.respostas.map((r) => (
                           <Badge key={r.id} variant="outline" className="text-xs">
-                            {r.resposta}
+                            {r.resposta}{r.peso ? ` (${r.peso})` : ""}
                           </Badge>
                         ))}
                       </div>

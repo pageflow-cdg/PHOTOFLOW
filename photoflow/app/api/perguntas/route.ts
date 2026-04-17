@@ -6,13 +6,30 @@ const createPerguntaSchema = z.object({
   descricao: z.string().min(3),
   tipoId: z.string(),
   pontoId: z.string(),
-  respostas: z.array(z.string()).optional(),
+  tipoPergunta: z.enum(["form_aberto", "form_fechado", "ambos"]).optional(),
+  respostas: z
+    .array(
+      z.object({
+        resposta: z.string(),
+        peso: z.number().int().default(0),
+      })
+    )
+    .optional(),
   ordem: z.number().optional(),
 });
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const tipoPergunta = searchParams.get("tipoPergunta");
+
+    const where: Record<string, unknown> = {};
+    if (tipoPergunta === "form_aberto" || tipoPergunta === "form_fechado") {
+      where.tipoPergunta = { in: [tipoPergunta, "ambos"] };
+    }
+
     const perguntas = await prisma.pergunta.findMany({
+      where,
       include: {
         tipo: true,
         ponto: true,
@@ -41,10 +58,14 @@ export async function POST(request: NextRequest) {
         descricao: parsed.descricao,
         tipoId: parsed.tipoId,
         pontoId: parsed.pontoId,
+        tipoPergunta: parsed.tipoPergunta || "ambos",
         ordem: parsed.ordem || 0,
         respostas: parsed.respostas
           ? {
-              create: parsed.respostas.map((r) => ({ resposta: r })),
+              create: parsed.respostas.map((r) => ({
+                resposta: r.resposta,
+                peso: r.peso,
+              })),
             }
           : undefined,
       },
