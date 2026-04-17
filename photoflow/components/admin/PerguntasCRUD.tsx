@@ -1,10 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -28,6 +25,9 @@ interface UserData {
   role: { id: string; role: string };
   createdAt: string;
 }
+
+const inputClass =
+  "bg-white/[0.05] border border-white/10 text-white rounded-xl h-11 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1599BD]/40 focus:border-[#1599BD]/50 placeholder:text-slate-600 w-full transition-colors duration-200";
 
 export function PerguntasCRUD() {
   const [perguntas, setPerguntas] = useState<PerguntaWithRelations[]>([]);
@@ -152,67 +152,74 @@ export function PerguntasCRUD() {
   if (loading) {
     return (
       <div className="space-y-4">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-64 w-full" />
+        <Skeleton className="h-12 w-full rounded-2xl" />
+        <Skeleton className="h-80 w-full rounded-2xl" />
       </div>
     );
   }
 
   return (
-    <Tabs defaultValue="perguntas" className="space-y-4">
-      <TabsList>
-        <TabsTrigger value="perguntas">Perguntas</TabsTrigger>
-        <TabsTrigger value="usuarios">Usuários</TabsTrigger>
+    <Tabs defaultValue="perguntas" className="space-y-6">
+      <TabsList className="bg-white/[0.05] border border-white/10 p-1 rounded-xl h-auto">
+        <TabsTrigger
+          value="perguntas"
+          className="text-slate-400 data-[state=active]:bg-[#1599BD] data-[state=active]:text-white rounded-lg text-sm font-medium px-5 py-2 transition-all"
+        >
+          Perguntas
+        </TabsTrigger>
+        <TabsTrigger
+          value="usuarios"
+          className="text-slate-400 data-[state=active]:bg-[#1599BD] data-[state=active]:text-white rounded-lg text-sm font-medium px-5 py-2 transition-all"
+        >
+          Usuários
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="perguntas" className="space-y-6">
         {/* Create form */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Nova Pergunta</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
+        <div className="rounded-2xl border border-white/10 bg-[#07192a]/60 backdrop-blur-sm p-6 space-y-5">
+          <h2 className="text-base font-semibold text-white">Nova Pergunta</h2>
+          <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2 md:col-span-2">
-                <Label>Descrição</Label>
+                <label className="text-xs font-medium uppercase tracking-wide text-slate-400">Descrição</label>
                 <Input
+                  className={inputClass}
                   value={newDesc}
                   onChange={(e) => setNewDesc(e.target.value)}
                   placeholder="Texto da pergunta"
                 />
               </div>
               <div className="space-y-2">
-                <Label>Exibir em</Label>
+                <label className="text-xs font-medium uppercase tracking-wide text-slate-400">Exibir em</label>
                 <Select value={newTipoPergunta} onValueChange={setNewTipoPergunta}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-white/[0.05] border-white/10 text-white rounded-xl h-11 focus:ring-[#1599BD]/40">
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ambos">Ambos os formulários</SelectItem>
-                    <SelectItem value="form_aberto">Somente Form Aberto</SelectItem>
-                    <SelectItem value="form_fechado">Somente Form Fechado</SelectItem>
+                  <SelectContent className="bg-[#07192a] border-white/10 text-white">
+                    <SelectItem value="ambos" className="focus:bg-white/10 focus:text-white">Ambos os formulários</SelectItem>
+                    <SelectItem value="form_aberto" className="focus:bg-white/10 focus:text-white">Somente Form Aberto</SelectItem>
+                    <SelectItem value="form_fechado" className="focus:bg-white/10 focus:text-white">Somente Form Fechado</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
             {/* Respostas dinâmicas com peso */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label>Respostas</Label>
-                <Button
+                <label className="text-xs font-medium uppercase tracking-wide text-slate-400">Respostas</label>
+                <button
                   type="button"
-                  variant="outline"
-                  size="sm"
                   onClick={() => setNewRespostasList((prev) => [...prev, { resposta: "", peso: 0 }])}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.05] text-slate-300 hover:text-white hover:border-white/20 text-xs font-medium px-3 h-8 transition-colors duration-200"
                 >
-                  <Plus className="h-3 w-3 mr-1" /> Adicionar
-                </Button>
+                  <Plus className="h-3 w-3" /> Adicionar
+                </button>
               </div>
               {newRespostasList.map((item, idx) => (
                 <div key={idx} className="flex gap-2 items-center">
                   <Input
-                    className="flex-1"
+                    className={`flex-1 ${inputClass}`}
                     placeholder="Texto da resposta"
                     value={item.resposta}
                     onChange={(e) =>
@@ -222,9 +229,9 @@ export function PerguntasCRUD() {
                     }
                   />
                   <Input
-                    className="w-20"
+                    className="w-20 bg-white/[0.05] border border-white/10 text-white rounded-xl h-11 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1599BD]/40 placeholder:text-slate-600 text-center"
                     type="number"
-                    placeholder="Peso"
+                    placeholder="0"
                     value={item.peso}
                     onChange={(e) =>
                       setNewRespostasList((prev) =>
@@ -232,58 +239,59 @@ export function PerguntasCRUD() {
                       )
                     }
                   />
-                  <Button
+                  <button
                     type="button"
-                    variant="ghost"
-                    size="sm"
                     onClick={() => setNewRespostasList((prev) => prev.filter((_, i) => i !== idx))}
+                    className="flex items-center justify-center w-11 h-11 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-red-500/10 hover:border-red-500/30 transition-colors duration-200"
                   >
                     <Trash2 className="h-4 w-4 text-red-400" />
-                  </Button>
+                  </button>
                 </div>
               ))}
             </div>
 
-            <Button onClick={createPergunta} disabled={creating}>
-              {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-              Criar Pergunta
-            </Button>
-          </CardContent>
-        </Card>
+          <button
+            onClick={createPergunta}
+            disabled={creating}
+            className="inline-flex items-center gap-2 rounded-xl bg-[#1599BD] hover:bg-[#014F85] disabled:opacity-50 text-white text-sm font-medium px-5 h-11 transition-colors duration-200"
+          >
+            {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+            Criar Pergunta
+          </button>
+        </div>
 
         {/* List */}
-        <Card>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead></TableHead>
-                  <TableHead>Pergunta</TableHead>
-                  <TableHead>Exibir em</TableHead>
-                  <TableHead>Respostas</TableHead>
-                  <TableHead>Ativa</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+        <div className="rounded-2xl border border-white/10 bg-[#07192a]/60 backdrop-blur-sm overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-b border-white/10 hover:bg-transparent">
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 w-10"></TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Pergunta</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Exibir em</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Respostas</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-right">Ativa</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
                 {perguntas.map((p) => (
-                  <TableRow key={p.id}>
-                    <TableCell>
-                      <GripVertical className="h-4 w-4 text-zinc-400 cursor-grab" />
+                  <TableRow key={p.id} className="border-b border-white/[0.06] hover:bg-white/[0.03] transition-colors">
+                    <TableCell className="text-slate-500">
+                      <GripVertical className="h-4 w-4 cursor-grab" />
                     </TableCell>
-                    <TableCell className="font-medium">{p.descricao}</TableCell>
+                    <TableCell className="font-medium text-slate-200">{p.descricao}</TableCell>
                     <TableCell>
-                      <Badge variant="outline">{p.tipoPergunta ?? "ambos"}</Badge>
+                      <Badge variant="outline" className="border-white/20 text-slate-400 text-[10px]">{p.tipoPergunta ?? "ambos"}</Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1 flex-wrap">
                         {p.respostas.map((r) => (
-                          <Badge key={r.id} variant="outline" className="text-xs">
+                          <Badge key={r.id} variant="outline" className="text-[10px] border-white/15 text-slate-400">
                             {r.resposta}{r.peso ? ` · ${r.peso}pt` : ""}
                           </Badge>
                         ))}
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-right">
                       <Switch
                         checked={p.ativa}
                         onCheckedChange={() => togglePergunta(p.id, p.ativa)}
@@ -292,29 +300,27 @@ export function PerguntasCRUD() {
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+          </Table>
+        </div>
       </TabsContent>
 
       <TabsContent value="usuarios" className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Novo Usuário</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid md:grid-cols-3 gap-4">
+        <div className="rounded-2xl border border-white/10 bg-[#07192a]/60 backdrop-blur-sm p-6 space-y-5">
+          <h2 className="text-base font-semibold text-white">Novo Usuário</h2>
+          <div className="grid md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label>Login</Label>
+                <label className="text-xs font-medium uppercase tracking-wide text-slate-400">Login</label>
                 <Input
+                  className={inputClass}
                   value={newUser}
                   onChange={(e) => setNewUser(e.target.value)}
                   placeholder="usuario"
                 />
               </div>
               <div className="space-y-2">
-                <Label>Senha</Label>
+                <label className="text-xs font-medium uppercase tracking-wide text-slate-400">Senha</label>
                 <Input
+                  className={inputClass}
                   type="password"
                   value={newSenha}
                   onChange={(e) => setNewSenha(e.target.value)}
@@ -322,14 +328,14 @@ export function PerguntasCRUD() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Role</Label>
+                <label className="text-xs font-medium uppercase tracking-wide text-slate-400">Role</label>
                 <Select value={newRoleId} onValueChange={setNewRoleId}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-white/[0.05] border-white/10 text-white rounded-xl h-11 focus:ring-[#1599BD]/40">
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-[#07192a] border-white/10 text-white">
                     {roles.map((r) => (
-                      <SelectItem key={r.id} value={r.id}>
+                      <SelectItem key={r.id} value={r.id} className="focus:bg-white/10 focus:text-white">
                         {r.role}
                       </SelectItem>
                     ))}
@@ -337,39 +343,40 @@ export function PerguntasCRUD() {
                 </Select>
               </div>
             </div>
-            <Button onClick={createUser} disabled={creatingUser}>
-              {creatingUser ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-              Criar Usuário
-            </Button>
-          </CardContent>
-        </Card>
+          <button
+            onClick={createUser}
+            disabled={creatingUser}
+            className="inline-flex items-center gap-2 rounded-xl bg-[#1599BD] hover:bg-[#014F85] disabled:opacity-50 text-white text-sm font-medium px-5 h-11 transition-colors duration-200"
+          >
+            {creatingUser ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+            Criar Usuário
+          </button>
+        </div>
 
-        <Card>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Login</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Criado em</TableHead>
+        <div className="rounded-2xl border border-white/10 bg-[#07192a]/60 backdrop-blur-sm overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-b border-white/10 hover:bg-transparent">
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Login</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Role</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Criado em</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users.map((u) => (
+                <TableRow key={u.id} className="border-b border-white/[0.06] hover:bg-white/[0.03] transition-colors">
+                  <TableCell className="font-medium text-slate-200">{u.user}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="border-white/20 text-slate-400 text-[10px]">{u.role.role}</Badge>
+                  </TableCell>
+                  <TableCell className="text-slate-400">
+                    {new Date(u.createdAt).toLocaleDateString("pt-BR")}
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.map((u) => (
-                  <TableRow key={u.id}>
-                    <TableCell className="font-medium">{u.user}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{u.role.role}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(u.createdAt).toLocaleDateString("pt-BR")}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </TabsContent>
     </Tabs>
   );
