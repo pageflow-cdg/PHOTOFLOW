@@ -12,13 +12,14 @@ datasource db {
 // ========================
 
 model User {
-  id        String   @id @default(cuid())
-  user      String   @unique
+  id        String       @id @default(cuid())
+  user      String       @unique
   senha     String
   roleId    String
-  role      UserRole @relation(fields: [roleId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role      UserRole     @relation(fields: [roleId], references: [id])
+  closers   LeadCloser[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
 }
 
 model UserRole {
@@ -42,6 +43,7 @@ model Lead {
   fotos     Foto[]
   respostas LeadResposta[]
   historico LeadStatusHistorico[]
+  closers   LeadCloser[]
   createdAt DateTime             @default(now())
   updatedAt DateTime             @updatedAt
 }
@@ -142,4 +144,23 @@ model LeadResposta {
   resposta      Resposta? @relation(fields: [respostaId], references: [id])
   respostaTexto String?
   createdAt     DateTime  @default(now())
+}
+
+// ========================
+// CLOSER — ÁUDIO & TRANSCRIÇÃO
+// ========================
+
+model LeadCloser {
+  id                String   @id @default(cuid())
+  leadId            String
+  lead              Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  responsavelId     String
+  responsavel       User     @relation(fields: [responsavelId], references: [id])
+  audioUrl          String?
+  audioDuracao       Int?
+  transcricao       String?  @db.Text
+  transcricaoStatus String   @default("pendente")
+  erro              String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }

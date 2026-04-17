@@ -16,6 +16,7 @@ export interface LeadWithRelations {
   fotos: FotoWithStatus[];
   respostas: LeadRespostaWithRelations[];
   historico: { id: string; status: { status: string }; createdAt: Date }[];
+  closers?: LeadCloserWithRelations[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -61,4 +62,19 @@ export interface PaginatedResponse<T> {
   total: number;
   page: number;
   totalPages: number;
+}
+
+export interface LeadCloserWithRelations {
+  id: string;
+  leadId: string;
+  lead?: { id: string; nome: string; telefone: string; status: { status: string } };
+  responsavelId: string;
+  responsavel?: { id: string; user: string };
+  audioUrl: string | null;
+  audioDuracao: number | null;
+  transcricao: string | null;
+  transcricaoStatus: string;
+  erro: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 }

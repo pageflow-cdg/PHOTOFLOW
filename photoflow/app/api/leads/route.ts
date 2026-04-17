@@ -60,6 +60,12 @@ export async function GET(request: NextRequest) {
             include: { status: true },
             orderBy: { createdAt: "desc" },
           },
+          closers: {
+            include: {
+              responsavel: { select: { id: true, user: true } },
+            },
+            orderBy: { createdAt: "desc" },
+          },
         },
         orderBy: { createdAt: "desc" },
         skip: (page - 1) * limit,

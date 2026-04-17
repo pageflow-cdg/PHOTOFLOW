@@ -51,7 +51,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const user = session.user as any;
         user.id = token.sub;
         user.role = token.role;
-        user.paginas = token.paginas;
+
+        // Always fetch fresh paginas from DB so sidebar updates without re-login
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.sub as string },
+            include: { role: true },
+          });
+          if (dbUser) {
+            user.paginas = dbUser.role.paginas;
+            user.role = dbUser.role.role;
+          } else {
+            user.paginas = token.paginas;
+          }
+        } catch {
+          user.paginas = token.paginas;
+        }
       }
       return session;
     },
