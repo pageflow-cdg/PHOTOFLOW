@@ -115,21 +115,21 @@ export function LeadDetailDrawer({
                         { label: "Email", value: lead.email || "—" },
                         { label: "Data de cadastro", value: new Date(lead.createdAt).toLocaleDateString("pt-BR") },
                       ].map(({ label, value }) => (
-                        <div key={label} className="rounded-2xl border border-white/8 bg-white/4 p-4">
-                          <p className="text-[10px] font-semibold uppercase tracking-widest text-[#18BDD5]/70">{label}</p>
-                          <p className="mt-1 font-medium text-white">{value}</p>
+                        <div key={label} className="min-w-0 overflow-hidden rounded-2xl border border-white/8 bg-white/4 p-4">
+                          <p className="truncate text-[10px] font-semibold uppercase tracking-widest text-[#18BDD5]/70">{label}</p>
+                          <p className="mt-1 wrap-break-word font-medium text-white">{value}</p>
                         </div>
                       ))}
                     </div>
                     <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
                       <p className="text-[10px] font-semibold uppercase tracking-widest text-[#18BDD5]/70 mb-3">Status</p>
-                      <div className="flex items-center gap-3">
+                      <div className="flex flex-wrap items-center gap-3">
                         <StatusBadge status={lead.status.status} />
                         <Select
                           value={lead.status.id}
                           onValueChange={(val) => onStatusChange(lead.id, val)}
                         >
-                          <SelectTrigger className="w-50 bg-white/4 border-white/10 text-white rounded-xl focus:ring-0 [&>svg]:text-white/50">
+                          <SelectTrigger className="min-w-0 flex-1 bg-white/4 border-white/10 text-white rounded-xl focus:ring-0 [&>svg]:text-white/50">
                             <SelectValue placeholder="Alterar status" />
                           </SelectTrigger>
                           <SelectContent className="bg-[#07192a] border-white/10 text-white">
@@ -169,7 +169,7 @@ export function LeadDetailDrawer({
                         {lead.fotos.map((foto) => (
                           <div key={foto.id} className="relative aspect-square rounded-2xl overflow-hidden border border-white/10 bg-white/4">
                             <Image
-                              src={foto.fotoUrl}
+                              src={`/api/fotos/${foto.id}/image`}
                               alt="Foto do lead"
                               fill
                               unoptimized
