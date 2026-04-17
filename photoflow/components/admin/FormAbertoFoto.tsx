@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -24,12 +25,14 @@ const inputClass =
   "h-11 rounded-xl bg-white/[0.05] border-white/10 text-white placeholder:text-slate-500 focus-visible:ring-1 focus-visible:ring-[#18BDD5]/40 focus-visible:border-[#18BDD5]/40 transition-shadow duration-200";
 
 export function FormAbertoFoto() {
+  const router = useRouter();
   const [perguntas, setPerguntas] = useState<PerguntaWithRelations[]>([]);
   const [respostas, setRespostas] = useState<Record<string, string>>({});
   const [leadId, setLeadId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [searchTel, setSearchTel] = useState("");
   const [searching, setSearching] = useState(false);
+  const [uploadDone, setUploadDone] = useState(false);
 
   const { register, handleSubmit, formState: { errors }, setValue, reset } = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -96,8 +99,10 @@ export function FormAbertoFoto() {
 
   const handleNewLead = () => {
     setLeadId(null);
+    setUploadDone(false);
     reset();
     setRespostas({});
+    setSearchTel("");
   };
 
   return (
@@ -193,6 +198,33 @@ export function FormAbertoFoto() {
             Criar Lead e Continuar
           </Button>
         </form>
+      ) : uploadDone ? (
+        <div className="rounded-2xl border border-[#18BDD5]/30 bg-[#07192a]/60 backdrop-blur-sm px-5 py-10 flex flex-col items-center gap-4 text-center">
+          <div className="w-14 h-14 rounded-full bg-[#18BDD5]/15 flex items-center justify-center">
+            <svg className="w-7 h-7 text-[#18BDD5]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-white font-semibold text-lg">Fotos enviadas!</p>
+            <p className="text-slate-400 text-sm mt-1">O atendimento foi registrado com sucesso.</p>
+          </div>
+          <div className="flex gap-3 mt-2">
+            <button
+              onClick={handleNewLead}
+              className="inline-flex items-center gap-2 rounded-xl bg-[#1599BD] hover:bg-[#014F85] text-white text-sm font-medium px-5 h-11 transition-colors duration-200"
+            >
+              <UserPlus className="h-4 w-4" />
+              Novo Lead
+            </button>
+            <button
+              onClick={() => router.push("/admin/leads")}
+              className="inline-flex items-center gap-2 rounded-xl border border-white/15 text-slate-300 hover:bg-white/5 hover:text-white text-sm font-medium px-5 h-11 transition-colors duration-200"
+            >
+              Ver Leads
+            </button>
+          </div>
+        </div>
       ) : (
         <div className="rounded-2xl border border-white/10 bg-[#07192a]/60 backdrop-blur-sm px-5 py-5">
           <p className="text-xs font-medium uppercase tracking-wide text-slate-400 mb-4">
@@ -201,6 +233,7 @@ export function FormAbertoFoto() {
           <UploadFotos
             leadId={leadId}
             onUploadComplete={() => {
+              setUploadDone(true);
               toast.success("Fotos enviadas com sucesso!");
             }}
           />

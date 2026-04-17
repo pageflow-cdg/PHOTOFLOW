@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
             orderBy: { createdAt: "desc" },
           },
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: [{ pontuacao: "desc" }, { createdAt: "desc" }],
         skip: (page - 1) * limit,
         take: limit,
       }),
@@ -106,22 +106,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const lead = await prisma.lead.create({
-      data: {
-        nome: parsed.nome,
-        telefone: parsed.telefone,
-        email: parsed.email || null,
-        statusId: leadStatus.id,
-      },
+    // Upsert: se já existe lead com esse telefone, atualiza; senão cria
+    const leadExistente = await prisma.lead.findUnique({
+      where: { telefone: parsed.telefone },
     });
 
-    // Create status history
-    await prisma.leadStatusHistorico.create({
-      data: {
-        statusId: leadStatus.id,
-        leadId: lead.id,
-      },
-    });
+    let lead;
+    if (leadExistente) {
+      // Atualiza dados do lead existente
+      lead = await prisma.lead.update({
+        where: { id: leadExistente.id },
+        data: {
+          nome: parsed.nome,
+          email: parsed.email || leadExistente.email,
+          statusId: leadStatus.id,
+          updatedAt: new Date(),
+        },
+      });
+      // Apaga respostas antigas para reprocessar
+      await prisma.leadResposta.deleteMany({ where: { leadId: lead.id } });
+    } else {
+      lead = await prisma.lead.create({
+        data: {
+          nome: parsed.nome,
+          telefone: parsed.telefone,
+          email: parsed.email || null,
+          statusId: leadStatus.id,
+        },
+      });
+      // Cria histórico de status apenas para leads novos
+      await prisma.leadStatusHistorico.create({
+        data: {
+          statusId: leadStatus.id,
+          leadId: lead.id,
+        },
+      });
+    }
 
     // Save answers
     if (parsed.respostas && parsed.respostas.length > 0) {

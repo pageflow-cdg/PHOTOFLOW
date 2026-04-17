@@ -36,7 +36,7 @@ model UserRole {
 model Lead {
   id         String               @id @default(cuid())
   nome       String
-  telefone   String
+  telefone   String               @unique
   email      String?
   pontuacao  Float                @default(0)
   statusId   String
