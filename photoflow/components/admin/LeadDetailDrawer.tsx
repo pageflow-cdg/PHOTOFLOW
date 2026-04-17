@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { SendToCloserModal } from "@/components/admin/SendToCloserModal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { X } from "lucide-react";
+import { X, UserCheck } from "lucide-react";
 
 interface Lead {
   id: string;
@@ -16,6 +19,7 @@ interface Lead {
   fotos: { id: string; fotoUrl: string; status: { status: string } }[];
   respostas: { pergunta: { descricao: string }; resposta: { resposta: string } | null; respostaTexto?: string | null }[];
   historico: { status: { status: string }; createdAt: string }[];
+  closers?: { id: string; responsavel: { id: string; user: string }; transcricaoStatus: string }[];
   createdAt: string;
 }
 
@@ -35,6 +39,8 @@ export function LeadDetailDrawer({
   statuses,
 }: LeadDetailDrawerProps) {
   const [visible, setVisible] = useState(false);
+  const [closerModalOpen, setCloserModalOpen] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (open) {
@@ -89,6 +95,39 @@ export function LeadDetailDrawer({
 
             {/* Scrollable content */}
             <div className="flex-1 overflow-y-auto">
+              {/* Closer action — always visible outside tabs */}
+              {lead.status.status === "em_atendimento" && (
+                <div className="border-b border-white/8 px-6 py-4">
+                  <Button
+                    onClick={() => setCloserModalOpen(true)}
+                    className="w-full rounded-xl bg-violet-600 py-3 text-white font-semibold hover:bg-violet-700"
+                  >
+                    <UserCheck className="mr-2 h-4 w-4" />
+                    Enviar para Closer
+                  </Button>
+                </div>
+              )}
+
+              {lead.status.status === "em_closer" && lead.closers && lead.closers.length > 0 && (
+                <div className="border-b border-white/8 px-6 py-4">
+                  <div className="rounded-2xl border border-violet-500/20 bg-violet-500/10 p-4">
+                    <p className="text-sm text-violet-300 mb-3">
+                      Este lead está com um Closer
+                    </p>
+                    <Button
+                      onClick={() => {
+                        handleClose();
+                        router.push(`/admin/closer/${lead.closers![0].id}`);
+                      }}
+                      className="w-full rounded-xl bg-violet-600 text-white hover:bg-violet-700"
+                    >
+                      <UserCheck className="mr-2 h-4 w-4" />
+                      Ver Atendimento do Closer
+                    </Button>
+                  </div>
+                </div>
+              )}
+
               <Tabs defaultValue="dados" className="w-full">
                 {/* Sticky tabs bar */}
                 <div className="sticky top-0 z-10 bg-[#050d18] border-b border-white/8 px-6 py-3">
@@ -133,7 +172,9 @@ export function LeadDetailDrawer({
                             <SelectValue placeholder="Alterar status" />
                           </SelectTrigger>
                           <SelectContent className="bg-[#07192a] border-white/10 text-white">
-                            {statuses.map((s) => (
+                            {statuses
+                              .filter((s) => s.status !== "em_closer")
+                              .map((s) => (
                               <SelectItem key={s.id} value={s.id} className="focus:bg-white/8 focus:text-white">
                                 {s.status.replace("_", " ")}
                               </SelectItem>
@@ -209,6 +250,19 @@ export function LeadDetailDrawer({
           </>
         )}
       </div>
+
+      {/* Modal Enviar para Closer */}
+      {lead && (
+        <SendToCloserModal
+          leadId={lead.id}
+          open={closerModalOpen}
+          onClose={() => setCloserModalOpen(false)}
+          onSuccess={(closerId) => {
+            handleClose();
+            router.push(`/admin/closer/${closerId}`);
+          }}
+        />
+      )}
     </>
   );
 }

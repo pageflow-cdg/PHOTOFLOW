@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Menu,
   X,
+  Mic,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -31,6 +32,7 @@ interface SidebarProps {
 const menuItems = [
   { href: "/admin/impressao", label: "Impressão", icon: Printer },
   { href: "/admin/leads", label: "Leads", icon: Users },
+  { href: "/admin/closer", label: "Closer", icon: Mic },
   { href: "/admin/relatorio", label: "Relatório", icon: BarChart3 },
   { href: "/admin/cadastro", label: "Cadastro", icon: Settings },
   { href: "/admin/form-aberto", label: "Form Aberto", icon: Camera },
@@ -105,7 +107,9 @@ export function Sidebar({
                   >
                     {item.href === "/admin/impressao"
                       ? "Fila operacional"
-                      : "Área administrativa"}
+                      : item.href === "/admin/closer"
+                        ? "Atendimento de vendas"
+                        : "Área administrativa"}
                   </p>
                 </div>
               )}

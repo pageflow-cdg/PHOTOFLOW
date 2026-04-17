@@ -1,6 +1,7 @@
 const statusConfig: Record<string, { label: string; className: string }> = {
   novo:            { label: "Novo",            className: "bg-[#18BDD5]/15 text-[#18BDD5] border border-[#18BDD5]/30" },
   em_atendimento:  { label: "Em Atendimento",  className: "bg-amber-500/15 text-amber-400 border border-amber-500/30" },
+  em_closer:       { label: "Em Closer",       className: "bg-violet-500/15 text-violet-400 border border-violet-500/30" },
   foto_pendente:   { label: "Foto Pendente",   className: "bg-slate-500/15 text-slate-400 border border-slate-500/30" },
   foto_entregue:   { label: "Foto Entregue",   className: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30" },
   finalizado:      { label: "Finalizado",      className: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30" },

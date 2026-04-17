@@ -14,7 +14,7 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Pagination } from "@/components/shared/Pagination";
 import { Filters } from "@/components/shared/Filters";
 import { LeadDetailDrawer } from "./LeadDetailDrawer";
-import { Eye, LayoutGrid, List, Loader2 } from "lucide-react";
+import { Eye, LayoutGrid, List, Loader2, UserCheck } from "lucide-react";
 import { toast } from "sonner";
 
 interface Lead {
@@ -26,6 +26,7 @@ interface Lead {
   fotos: { id: string; fotoUrl: string; status: { status: string } }[];
   respostas: { pergunta: { descricao: string }; resposta: { resposta: string } | null; respostaTexto?: string | null }[];
   historico: { status: { status: string }; createdAt: string }[];
+  closers?: { id: string; responsavel: { id: string; user: string }; transcricaoStatus: string }[];
   createdAt: string;
 }
 
@@ -248,13 +249,25 @@ export function LeadsTable() {
                       </TableCell>
                       <TableCell className="text-white/60">{lead.fotos.length}</TableCell>
                       <TableCell>
-                        <button
-                          className="inline-flex items-center justify-center h-8 w-8 rounded-xl border border-white/10 bg-white/4 text-[#18BDD5]/70 hover:text-[#18BDD5] hover:bg-white/8 transition-colors"
-                          onClick={() => setSelectedLead(lead)}
-                          aria-label={`Ver detalhes de ${lead.nome}`}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </button>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            className="inline-flex items-center justify-center h-8 w-8 rounded-xl border border-white/10 bg-white/4 text-[#18BDD5]/70 hover:text-[#18BDD5] hover:bg-white/8 transition-colors"
+                            onClick={() => setSelectedLead(lead)}
+                            aria-label={`Ver detalhes de ${lead.nome}`}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                          {lead.status.status === "em_atendimento" && (
+                            <button
+                              className="inline-flex items-center justify-center h-8 w-8 rounded-xl border border-violet-500/30 bg-violet-500/10 text-violet-400 hover:bg-violet-500/20 transition-colors"
+                              onClick={() => setSelectedLead(lead)}
+                              aria-label={`Enviar ${lead.nome} para closer`}
+                              title="Enviar para Closer"
+                            >
+                              <UserCheck className="h-4 w-4" />
+                            </button>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

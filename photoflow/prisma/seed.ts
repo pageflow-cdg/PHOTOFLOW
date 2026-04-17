@@ -5,31 +5,35 @@ const prisma = new PrismaClient();
 
 async function main() {
   // User Roles
+  const adminPaginas = JSON.stringify([
+    "/admin/impressao",
+    "/admin/leads",
+    "/admin/relatorio",
+    "/admin/cadastro",
+    "/admin/form-aberto",
+    "/admin/closer",
+  ]);
   const adminRole = await prisma.userRole.upsert({
     where: { role: "admin" },
-    update: {},
+    update: { paginas: adminPaginas },
     create: {
       role: "admin",
-      paginas: JSON.stringify([
-        "/admin/impressao",
-        "/admin/leads",
-        "/admin/relatorio",
-        "/admin/cadastro",
-        "/admin/form-aberto",
-      ]),
+      paginas: adminPaginas,
     },
   });
 
+  const operadorPaginas = JSON.stringify([
+    "/admin/impressao",
+    "/admin/leads",
+    "/admin/form-aberto",
+    "/admin/closer",
+  ]);
   await prisma.userRole.upsert({
     where: { role: "operador" },
-    update: {},
+    update: { paginas: operadorPaginas },
     create: {
       role: "operador",
-      paginas: JSON.stringify([
-        "/admin/impressao",
-        "/admin/leads",
-        "/admin/form-aberto",
-      ]),
+      paginas: operadorPaginas,
     },
   });
 
@@ -46,6 +50,7 @@ async function main() {
   for (const status of [
     "novo",
     "em_atendimento",
+    "em_closer",
     "foto_pendente",
     "foto_entregue",
     "finalizado",

@@ -19,6 +19,12 @@ export async function GET(
           include: { status: true },
           orderBy: { createdAt: "desc" },
         },
+        closers: {
+          include: {
+            responsavel: { select: { id: true, user: true } },
+          },
+          orderBy: { createdAt: "desc" },
+        },
       },
     });
 
