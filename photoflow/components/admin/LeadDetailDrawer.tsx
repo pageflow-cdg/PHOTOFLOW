@@ -8,13 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { X, UserCheck } from "lucide-react";
+import { X, UserCheck, RefreshCw } from "lucide-react";
 
 interface Lead {
   id: string;
   nome: string;
   telefone: string;
   email: string | null;
+  pontuacao: number;
   status: { id: string; status: string };
   fotos: { id: string; fotoUrl: string; status: { status: string } }[];
   respostas: { pergunta: { descricao: string }; resposta: { resposta: string } | null; respostaTexto?: string | null }[];
@@ -95,6 +96,22 @@ export function LeadDetailDrawer({
 
             {/* Scrollable content */}
             <div className="flex-1 overflow-y-auto">
+              {/* Reavaliar — visível para leads com status 'novo' */}
+              {lead.status.status === "novo" && (
+                <div className="border-b border-white/8 px-6 py-4">
+                  <Button
+                    onClick={() => {
+                      handleClose();
+                      router.push(`/admin/form-fechado?tel=${encodeURIComponent(lead.telefone)}`);
+                    }}
+                    className="w-full rounded-xl bg-[#1599BD] py-3 text-white font-semibold hover:bg-[#014F85]"
+                  >
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Reavaliar no Form Fechado
+                  </Button>
+                </div>
+              )}
+
               {/* Closer action — always visible outside tabs */}
               {lead.status.status === "em_atendimento" && (
                 <div className="border-b border-white/8 px-6 py-4">
@@ -159,6 +176,32 @@ export function LeadDetailDrawer({
                           <p className="mt-1 wrap-break-word font-medium text-white">{value}</p>
                         </div>
                       ))}
+                    </div>
+                    {/* Pontuação */}
+                    <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-[#18BDD5]/70 mb-3">Pontuação</p>
+                      {(() => {
+                        const pct = Math.round((lead.pontuacao ?? 0) * 100);
+                        const { bar, text } =
+                          pct >= 70
+                            ? { bar: "bg-emerald-400", text: "text-emerald-400" }
+                            : pct >= 40
+                            ? { bar: "bg-amber-400", text: "text-amber-400" }
+                            : pct > 0
+                            ? { bar: "bg-red-400", text: "text-red-400" }
+                            : { bar: "bg-white/20", text: "text-white/35" };
+                        return (
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className={`text-xl font-bold ${text}`}>{pct > 0 ? `${pct}%` : "Sem score"}</span>
+                              <span className="text-xs text-white/40">{pct >= 70 ? "Alto potencial" : pct >= 40 ? "Médio potencial" : pct > 0 ? "Baixo potencial" : "Não avaliado"}</span>
+                            </div>
+                            <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+                              <div className={`h-full rounded-full transition-all ${bar}`} style={{ width: `${pct}%` }} />
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
                     <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
                       <p className="text-[10px] font-semibold uppercase tracking-widest text-[#18BDD5]/70 mb-3">Status</p>

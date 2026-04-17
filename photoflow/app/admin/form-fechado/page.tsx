@@ -1,6 +1,11 @@
 import { FormAbertoFoto } from "@/components/admin/FormAbertoFoto";
 
-export default function FormFechadoPage() {
+export default async function FormFechadoPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tel?: string }>;
+}) {
+  const { tel } = await searchParams;
   return (
     <div className="space-y-5 md:space-y-6">
       <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#07192a]/85 px-6 py-5 shadow-[0_24px_54px_rgba(0,0,0,0.24)] backdrop-blur-xl md:px-7 md:py-6">
@@ -21,7 +26,7 @@ export default function FormFechadoPage() {
           </h1>
         </div>
       </section>
-      <FormAbertoFoto />
+      <FormAbertoFoto initialTel={tel} />
     </div>
   );
 }

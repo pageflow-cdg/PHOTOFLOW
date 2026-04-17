@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -14,7 +15,7 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Pagination } from "@/components/shared/Pagination";
 import { Filters } from "@/components/shared/Filters";
 import { LeadDetailDrawer } from "./LeadDetailDrawer";
-import { Eye, LayoutGrid, List, Loader2, UserCheck } from "lucide-react";
+import { Eye, LayoutGrid, List, Loader2, RefreshCw, UserCheck } from "lucide-react";
 import { toast } from "sonner";
 
 interface Lead {
@@ -22,6 +23,7 @@ interface Lead {
   nome: string;
   telefone: string;
   email: string | null;
+  pontuacao: number;
   status: { id: string; status: string };
   fotos: { id: string; fotoUrl: string; status: { status: string } }[];
   respostas: { pergunta: { descricao: string }; resposta: { resposta: string } | null; respostaTexto?: string | null }[];
@@ -32,6 +34,24 @@ interface Lead {
 
 const MOBILE_PAGE_SIZE = 10;
 
+function PontuacaoBadge({ pontuacao }: { pontuacao: number }) {
+  const pct = Math.round(pontuacao * 100);
+  const { bg, text, dot } =
+    pct >= 70
+      ? { bg: "bg-emerald-500/12", text: "text-emerald-400", dot: "bg-emerald-400" }
+      : pct >= 40
+      ? { bg: "bg-amber-500/12", text: "text-amber-400", dot: "bg-amber-400" }
+      : pct > 0
+      ? { bg: "bg-red-500/12", text: "text-red-400", dot: "bg-red-400" }
+      : { bg: "bg-white/6", text: "text-white/35", dot: "bg-white/25" };
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${bg} ${text}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
+      {pct > 0 ? `${pct}%` : "Sem score"}
+    </span>
+  );
+}
+
 export function LeadsTable() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,12 +59,13 @@ export function LeadsTable() {
   const [totalPages, setTotalPages] = useState(1);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("all");
+  const [status, setStatus] = useState("novo");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [statuses, setStatuses] = useState<{ id: string; status: string }[]>([]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
+  const router = useRouter();
 
   // Mobile infinite scroll
   const [mobileLeads, setMobileLeads] = useState<Lead[]>([]);
@@ -230,6 +251,7 @@ export function LeadsTable() {
                   <TableRow className="border-b border-white/8 hover:bg-transparent">
                     <TableHead className="text-[11px] uppercase tracking-widest text-[#18BDD5]/70 font-semibold">Nome</TableHead>
                     <TableHead className="text-[11px] uppercase tracking-widest text-[#18BDD5]/70 font-semibold">Telefone</TableHead>
+                    <TableHead className="text-[11px] uppercase tracking-widest text-[#18BDD5]/70 font-semibold">Pontuação</TableHead>
                     <TableHead className="text-[11px] uppercase tracking-widest text-[#18BDD5]/70 font-semibold">Status</TableHead>
                     <TableHead className="text-[11px] uppercase tracking-widest text-[#18BDD5]/70 font-semibold">Data</TableHead>
                     <TableHead className="text-[11px] uppercase tracking-widest text-[#18BDD5]/70 font-semibold">Fotos</TableHead>
@@ -241,6 +263,9 @@ export function LeadsTable() {
                     <TableRow key={lead.id} className="border-b border-white/6 hover:bg-white/4 transition-colors">
                       <TableCell className="font-medium text-white">{lead.nome}</TableCell>
                       <TableCell className="text-white/60">{lead.telefone}</TableCell>
+                      <TableCell>
+                        <PontuacaoBadge pontuacao={lead.pontuacao} />
+                      </TableCell>
                       <TableCell>
                         <StatusBadge status={lead.status.status} />
                       </TableCell>
@@ -257,6 +282,15 @@ export function LeadsTable() {
                           >
                             <Eye className="h-4 w-4" />
                           </button>
+                          {lead.status.status === "novo" && (
+                            <button
+                              className="inline-flex items-center justify-center h-8 w-8 rounded-xl border border-[#18BDD5]/30 bg-[#18BDD5]/8 text-[#18BDD5] hover:bg-[#18BDD5]/15 transition-colors"
+                              onClick={() => router.push(`/admin/form-fechado?tel=${encodeURIComponent(lead.telefone)}`)}
+                              title="Reavaliar no Form Fechado"
+                            >
+                              <RefreshCw className="h-4 w-4" />
+                            </button>
+                          )}
                           {lead.status.status === "em_atendimento" && (
                             <button
                               className="inline-flex items-center justify-center h-8 w-8 rounded-xl border border-violet-500/30 bg-violet-500/10 text-violet-400 hover:bg-violet-500/20 transition-colors"
@@ -273,7 +307,7 @@ export function LeadsTable() {
                   ))}
                   {leads.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-12 text-white/40">
+                      <TableCell colSpan={7} className="text-center py-12 text-white/40">
                         Nenhum lead encontrado
                       </TableCell>
                     </TableRow>
@@ -287,21 +321,37 @@ export function LeadsTable() {
           {viewMode === "grid" && (
             <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-3">
               {leads.map((lead) => (
-                <button
+                <div
                   key={lead.id}
-                  className="text-left bg-white/4 border border-white/8 rounded-2xl p-4 hover:bg-white/7 hover:border-[#18BDD5]/30 transition-all cursor-pointer"
-                  onClick={() => setSelectedLead(lead)}
+                  className="text-left bg-white/4 border border-white/8 rounded-2xl p-4 hover:bg-white/7 hover:border-[#18BDD5]/30 transition-all"
                 >
-                  <div className="flex items-start justify-between mb-2 gap-2">
-                    <h3 className="font-semibold text-white text-sm leading-snug">{lead.nome}</h3>
-                    <StatusBadge status={lead.status.status} />
+                  <div
+                    className="cursor-pointer"
+                    onClick={() => setSelectedLead(lead)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === "Enter" && setSelectedLead(lead)}
+                  >
+                    <div className="flex items-start justify-between mb-2 gap-2">
+                      <h3 className="font-semibold text-white text-sm leading-snug">{lead.nome}</h3>
+                      <StatusBadge status={lead.status.status} />
+                    </div>
+                    <p className="text-sm text-white/55">{lead.telefone}</p>
+                    <div className="flex items-center justify-between mt-3">
+                      <PontuacaoBadge pontuacao={lead.pontuacao} />
+                      <span className="text-xs text-white/40">{lead.fotos.length} foto(s)</span>
+                    </div>
                   </div>
-                  <p className="text-sm text-white/55">{lead.telefone}</p>
-                  <div className="flex items-center justify-between mt-3 text-xs text-white/40">
-                    <span>{new Date(lead.createdAt).toLocaleDateString("pt-BR")}</span>
-                    <span>{lead.fotos.length} foto(s)</span>
-                  </div>
-                </button>
+                  {lead.status.status === "novo" && (
+                    <button
+                      className="mt-3 w-full inline-flex items-center justify-center gap-1.5 rounded-xl border border-[#18BDD5]/25 bg-[#18BDD5]/8 text-[#18BDD5] text-xs font-medium h-8 hover:bg-[#18BDD5]/15 transition-colors"
+                      onClick={() => router.push(`/admin/form-fechado?tel=${encodeURIComponent(lead.telefone)}`)}
+                    >
+                      <RefreshCw className="h-3.5 w-3.5" />
+                      Reavaliar
+                    </button>
+                  )}
+                </div>
               ))}
               {leads.length === 0 && (
                 <div className="col-span-full text-center py-12 text-white/40">
@@ -325,21 +375,37 @@ export function LeadsTable() {
           <>
             <div className="grid grid-cols-1 gap-3">
               {mobileLeads.map((lead) => (
-                <button
+                <div
                   key={lead.id}
-                  className="text-left bg-white/4 border border-white/8 rounded-2xl p-4 hover:bg-white/7 hover:border-[#18BDD5]/30 transition-all cursor-pointer"
-                  onClick={() => setSelectedLead(lead)}
+                  className="text-left bg-white/4 border border-white/8 rounded-2xl p-4 hover:bg-white/7 hover:border-[#18BDD5]/30 transition-all"
                 >
-                  <div className="flex items-start justify-between mb-2 gap-2">
-                    <h3 className="font-semibold text-white text-sm leading-snug">{lead.nome}</h3>
-                    <StatusBadge status={lead.status.status} />
+                  <div
+                    className="cursor-pointer"
+                    onClick={() => setSelectedLead(lead)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === "Enter" && setSelectedLead(lead)}
+                  >
+                    <div className="flex items-start justify-between mb-2 gap-2">
+                      <h3 className="font-semibold text-white text-sm leading-snug">{lead.nome}</h3>
+                      <StatusBadge status={lead.status.status} />
+                    </div>
+                    <p className="text-sm text-white/55">{lead.telefone}</p>
+                    <div className="flex items-center justify-between mt-3">
+                      <PontuacaoBadge pontuacao={lead.pontuacao} />
+                      <span className="text-xs text-white/40">{lead.fotos.length} foto(s)</span>
+                    </div>
                   </div>
-                  <p className="text-sm text-white/55">{lead.telefone}</p>
-                  <div className="flex items-center justify-between mt-3 text-xs text-white/40">
-                    <span>{new Date(lead.createdAt).toLocaleDateString("pt-BR")}</span>
-                    <span>{lead.fotos.length} foto(s)</span>
-                  </div>
-                </button>
+                  {lead.status.status === "novo" && (
+                    <button
+                      className="mt-3 w-full inline-flex items-center justify-center gap-1.5 rounded-xl border border-[#18BDD5]/25 bg-[#18BDD5]/8 text-[#18BDD5] text-xs font-medium h-8 hover:bg-[#18BDD5]/15 transition-colors"
+                      onClick={() => router.push(`/admin/form-fechado?tel=${encodeURIComponent(lead.telefone)}`)}
+                    >
+                      <RefreshCw className="h-3.5 w-3.5" />
+                      Reavaliar
+                    </button>
+                  )}
+                </div>
               ))}
               {mobileLeads.length === 0 && (
                 <div className="text-center py-12 text-white/40">
