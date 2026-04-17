@@ -4,8 +4,6 @@ import { z } from "zod";
 
 const createPerguntaSchema = z.object({
   descricao: z.string().min(3),
-  tipoId: z.string(),
-  pontoId: z.string(),
   tipoPergunta: z.enum(["form_aberto", "form_fechado", "ambos"]).optional(),
   respostas: z
     .array(
@@ -30,11 +28,7 @@ export async function GET(request: NextRequest) {
 
     const perguntas = await prisma.pergunta.findMany({
       where,
-      include: {
-        tipo: true,
-        ponto: true,
-        respostas: true,
-      },
+      include: { respostas: true },
       orderBy: { ordem: "asc" },
     });
 
@@ -56,8 +50,6 @@ export async function POST(request: NextRequest) {
     const pergunta = await prisma.pergunta.create({
       data: {
         descricao: parsed.descricao,
-        tipoId: parsed.tipoId,
-        pontoId: parsed.pontoId,
         tipoPergunta: parsed.tipoPergunta || "ambos",
         ordem: parsed.ordem || 0,
         respostas: parsed.respostas
@@ -69,7 +61,7 @@ export async function POST(request: NextRequest) {
             }
           : undefined,
       },
-      include: { tipo: true, ponto: true, respostas: true },
+      include: { respostas: true },
     });
 
     return NextResponse.json(pergunta, { status: 201 });
@@ -100,7 +92,7 @@ export async function PATCH(request: NextRequest) {
     const pergunta = await prisma.pergunta.update({
       where: { id },
       data,
-      include: { tipo: true, ponto: true, respostas: true },
+      include: { respostas: true },
     });
 
     return NextResponse.json(pergunta);

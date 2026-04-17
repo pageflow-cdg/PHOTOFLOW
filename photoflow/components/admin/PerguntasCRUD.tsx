@@ -34,13 +34,9 @@ export function PerguntasCRUD() {
   const [users, setUsers] = useState<UserData[]>([]);
   const [roles, setRoles] = useState<{ id: string; role: string }[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tipos, setTipos] = useState<{ id: string; descricao: string }[]>([]);
-  const [pontos, setPontos] = useState<{ id: string; ponto: number }[]>([]);
 
   // New pergunta form
   const [newDesc, setNewDesc] = useState("");
-  const [newTipoId, setNewTipoId] = useState("");
-  const [newPontoId, setNewPontoId] = useState("");
   const [newTipoPergunta, setNewTipoPergunta] = useState("ambos");
   const [newRespostasList, setNewRespostasList] = useState<{ resposta: string; peso: number }[]>([]);
   const [creating, setCreating] = useState(false);
@@ -55,15 +51,11 @@ export function PerguntasCRUD() {
     Promise.all([
       fetch("/api/perguntas").then((r) => r.json()),
       fetch("/api/usuarios").then((r) => r.json()),
-      fetch("/api/perguntas/tipos").then((r) => r.json()),
-      fetch("/api/perguntas/pontos").then((r) => r.json()),
       fetch("/api/usuarios/roles").then((r) => r.json()),
     ])
-      .then(([perguntasData, usersData, tiposData, pontosData, rolesData]) => {
+      .then(([perguntasData, usersData, rolesData]) => {
         setPerguntas(perguntasData);
         setUsers(usersData);
-        setTipos(tiposData);
-        setPontos(pontosData);
         setRoles(rolesData);
       })
       .catch(() => toast.error("Erro ao carregar dados"))
@@ -71,8 +63,12 @@ export function PerguntasCRUD() {
   }, []);
 
   const createPergunta = async () => {
-    if (!newDesc || !newTipoId || !newPontoId) {
-      toast.error("Preencha todos os campos");
+    if (!newDesc) {
+      toast.error("Preencha a descrição da pergunta");
+      return;
+    }
+    if (newRespostasList.length === 0) {
+      toast.error("Adicione pelo menos uma resposta");
       return;
     }
 
@@ -83,10 +79,8 @@ export function PerguntasCRUD() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           descricao: newDesc,
-          tipoId: newTipoId,
-          pontoId: newPontoId,
           tipoPergunta: newTipoPergunta,
-          respostas: newRespostasList.length > 0 ? newRespostasList : undefined,
+          respostas: newRespostasList,
         }),
       });
 
@@ -179,7 +173,7 @@ export function PerguntasCRUD() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
+              <div className="space-y-2 md:col-span-2">
                 <Label>Descrição</Label>
                 <Input
                   value={newDesc}
@@ -188,45 +182,15 @@ export function PerguntasCRUD() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Tipo</Label>
-                <Select value={newTipoId} onValueChange={setNewTipoId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {tipos.map((t) => (
-                      <SelectItem key={t.id} value={t.id}>
-                        {t.descricao}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Pontuação</Label>
-                <Select value={newPontoId} onValueChange={setNewPontoId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a pontuação" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {pontos.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>
-                        {p.ponto} pontos
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
                 <Label>Exibir em</Label>
                 <Select value={newTipoPergunta} onValueChange={setNewTipoPergunta}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ambos">Ambos</SelectItem>
-                    <SelectItem value="form_aberto">Form Aberto</SelectItem>
-                    <SelectItem value="form_fechado">Form Fechado</SelectItem>
+                    <SelectItem value="ambos">Ambos os formulários</SelectItem>
+                    <SelectItem value="form_aberto">Somente Form Aberto</SelectItem>
+                    <SelectItem value="form_fechado">Somente Form Fechado</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -295,9 +259,7 @@ export function PerguntasCRUD() {
                 <TableRow>
                   <TableHead></TableHead>
                   <TableHead>Pergunta</TableHead>
-                  <TableHead>Tipo</TableHead>
                   <TableHead>Exibir em</TableHead>
-                  <TableHead>Pontos</TableHead>
                   <TableHead>Respostas</TableHead>
                   <TableHead>Ativa</TableHead>
                 </TableRow>
@@ -310,17 +272,13 @@ export function PerguntasCRUD() {
                     </TableCell>
                     <TableCell className="font-medium">{p.descricao}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary">{p.tipo.descricao}</Badge>
-                    </TableCell>
-                    <TableCell>
                       <Badge variant="outline">{p.tipoPergunta ?? "ambos"}</Badge>
                     </TableCell>
-                    <TableCell>{p.ponto.ponto}</TableCell>
                     <TableCell>
                       <div className="flex gap-1 flex-wrap">
                         {p.respostas.map((r) => (
                           <Badge key={r.id} variant="outline" className="text-xs">
-                            {r.resposta}{r.peso ? ` (${r.peso})` : ""}
+                            {r.resposta}{r.peso ? ` · ${r.peso}pt` : ""}
                           </Badge>
                         ))}
                       </div>

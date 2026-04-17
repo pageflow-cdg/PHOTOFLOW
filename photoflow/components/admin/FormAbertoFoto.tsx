@@ -67,15 +67,10 @@ export function FormAbertoFoto() {
   const onSubmit = async (data: FormData) => {
     setSubmitting(true);
     try {
-      const respostasArray = Object.entries(respostas).map(([perguntaId, value]) => {
-        const pergunta = perguntas.find((p) => p.id === perguntaId);
-        const isTexto = pergunta?.tipo.descricao === "texto";
-        return {
-          perguntaId,
-          respostaId: isTexto ? undefined : value,
-          respostaTexto: isTexto ? value : undefined,
-        };
-      });
+      const respostasArray = Object.entries(respostas).map(([perguntaId, respostaId]) => ({
+        perguntaId,
+        respostaId,
+      }));
 
       const res = await fetch("/api/leads", {
         method: "POST",

@@ -41,8 +41,6 @@ export interface LeadRespostaWithRelations {
 export interface PerguntaWithRelations {
   id: string;
   descricao: string;
-  tipo: { id: string; descricao: string };
-  ponto: { id: string; ponto: number };
   tipoPergunta: "form_aberto" | "form_fechado" | "ambos";
   respostas: { id: string; resposta: string; peso: number }[];
   ativa: boolean;
